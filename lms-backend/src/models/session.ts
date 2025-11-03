@@ -2,30 +2,26 @@ import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema(
   {
-    expiresAt: {
-      type: Date,
-      required: true,
-       index: { expires: 0 },
-    },
-    token: {
+    id: {
       type: String,
-      required: true,
-      unique: true,
+      default: () => new mongoose.Types.ObjectId().toString(),
     },
-    ipAddress: {
-      type: String,
-    },
-    userAgent: {
-      type: String,
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    expiresAt: { type: Date, required: true, index: { expires: 0 } },
+    token: { type: String, required: true, unique: true },
+    ipAddress: { type: String },
+    userAgent: { type: String },
+    userId: { type: String, required: true },
+    impersonatedBy: { type: String },
   },
   { timestamps: true }
 );
+
+sessionSchema.virtual("user", {
+  ref: "User",
+  localField: "userId",
+  foreignField: "id",
+  justOne: true,
+});
 
 const Session = mongoose.model("Session", sessionSchema);
 export default Session;

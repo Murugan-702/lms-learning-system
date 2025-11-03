@@ -2,18 +2,13 @@ import mongoose from "mongoose";
 
 const verificationSchema = new mongoose.Schema(
   {
-    identifier: {
+    id: {
       type: String,
-      required: true,
+      default: () => new mongoose.Types.ObjectId().toString(),
     },
-    value: {
-      type: String,
-      required: true,
-    },
-    expiresAt: {
-      type: Date,
-      required: true,
-    },
+    identifier: { type: String, required: true },
+    value: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
   },
   { timestamps: true }
 );

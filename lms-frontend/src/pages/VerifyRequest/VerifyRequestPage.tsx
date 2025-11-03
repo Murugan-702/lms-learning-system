@@ -11,20 +11,39 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { verifyOtp } from "@/feautres/auth/authThunks";
+import { useAppDispatch } from "@/hooks/authHook";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
-//import { useSearchParams } from "react-router-dom";
+import { useState, useTransition } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const VerifyRequestPage = () => {
   const [otp, setOtp] = useState("");
-  
+ const email = decodeURIComponent(useParams().email as string);
+ console.log("email",email)
+  const [emailPending, startEmailTransition] = useTransition();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const emailPending = false;
-//   const params = useSearchParams();
-//   const email =  'email'
   const isOtpCompleted = otp.length === 6;
-  const verifyOtp = () => {
-    console.log("otp is verified");
+  const handleVerifyOtp = () => {
+    if (!email ) {
+      toast.error("Email is not defined");
+    }
+    startEmailTransition(async () => {
+      try {
+        const res = await dispatch(verifyOtp({email:email,otp:otp})).unwrap();
+        if (res.success) {
+          toast.success(res.message);
+          navigate("/")
+        } else {
+          toast.error(res.message);
+        }
+      } catch(error) {
+        toast.error("Something went wrong!"+error?.message);
+      }
+    });
   };
   return (
     <Card className="w-full mx-auto">
@@ -37,7 +56,12 @@ const VerifyRequestPage = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col items-center space-y-2">
-          <InputOTP value={otp} maxLength={6} className="gap-2" onChange={(value)=>setOtp(value)}>
+          <InputOTP
+            value={otp}
+            maxLength={6}
+            className="gap-2"
+            onChange={(value) => setOtp(value)}
+          >
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -54,7 +78,7 @@ const VerifyRequestPage = () => {
           </p>
         </div>
         <Button
-          onClick={verifyOtp}
+          onClick={handleVerifyOtp}
           disabled={emailPending || !isOtpCompleted}
           className="w-full"
         >

@@ -8,8 +8,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
+import { logout } from "@/feautres/auth/authThunks";
+import { useAppDispatch } from "@/hooks/authHook";
 import { ChevronDownIcon, Home, LogOutIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 interface iAppProps {
   name: string;
@@ -17,8 +20,17 @@ interface iAppProps {
   image: string;
 }
 const UserDropdown = ({ email, name, image }: iAppProps) => {
-    const handleSignOut = () =>{
-        console.log("signed-out")
+  const dispatch = useAppDispatch();
+    const handleSignOut = async() =>{
+        const res = await dispatch(logout());
+        const message = res.payload.message;
+        const success = res.payload.success;
+        if(success){
+           toast.success(message);
+        }
+        else{
+          toast.error(message);
+        }
     }
   return (
     <DropdownMenu>

@@ -2,44 +2,40 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    id: {
       type: String,
-      trim: true,
+      default: () => new mongoose.Types.ObjectId().toString(),
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    emailVerified: {
-      type: Date,
-    },
-    image: {
-      type: String,
-    },
-    password: {
-      type: String,
-      required: false, 
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    emailVerified: { type: Boolean, default: false },
+    image: { type: String },
+    role: { type: String },
+    banned: { type: Boolean, default: false },
+    banReason: { type: String },
+    banExpires: { type: Date },
   },
   { timestamps: true }
 );
 
-
+// Relations
 userSchema.virtual("sessions", {
   ref: "Session",
-  localField: "_id",
-  foreignField: "user",
+  localField: "id",
+  foreignField: "userId",
 });
 
 userSchema.virtual("accounts", {
   ref: "Account",
-  localField: "_id",
-  foreignField: "user",
+  localField: "id",
+  foreignField: "userId",
 });
 
+// userSchema.virtual("course", {
+//   ref: "Course",
+//   localField: "id",
+//   foreignField: "userId",
+// });
 
 userSchema.set("toJSON", { virtuals: true });
 userSchema.set("toObject", { virtuals: true });
