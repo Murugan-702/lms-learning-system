@@ -12,7 +12,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { verifyOtp } from "@/feautres/auth/authThunks";
-import { useAppDispatch } from "@/hooks/authHook";
+import { useAppDispatch } from "@/hooks/dispatchHook";
 import { Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,8 +40,8 @@ const VerifyRequestPage = () => {
         } else {
           toast.error(res.message);
         }
-      } catch(error) {
-        toast.error("Something went wrong!"+error?.message);
+      } catch {
+        toast.error("Something went wrong!");
       }
     });
   };

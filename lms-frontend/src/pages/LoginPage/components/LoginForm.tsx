@@ -13,7 +13,7 @@ import { useState, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { githubLogin, sendOtp } from "@/feautres/auth/authThunks";
-import { useAppDispatch, useAppSelector } from "@/hooks/authHook";
+import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
 import { toast } from "sonner";
 
 const LoginForm = () => {
@@ -76,7 +76,7 @@ const LoginForm = () => {
           onClick={handleGithubLogin}
           disabled={gitHubPending || status === 'loading'}
         >
-          {gitHubPending || status ==='loading' ? (
+          {gitHubPending ? (
             <>
               <Loader className="size-4 animate-spin" />
               <span>Loading...</span>

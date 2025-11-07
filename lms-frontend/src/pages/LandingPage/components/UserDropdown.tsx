@@ -9,7 +9,7 @@ import {
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/feautres/auth/authThunks";
-import { useAppDispatch } from "@/hooks/authHook";
+import { useAppDispatch } from "@/hooks/dispatchHook";
 import { ChevronDownIcon, Home, LogOutIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";

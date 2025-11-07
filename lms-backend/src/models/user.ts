@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+export const userSchema = new mongoose.Schema(
   {
     id: {
       type: String,
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     emailVerified: { type: Boolean, default: false },
     image: { type: String },
-    role: { type: String },
+    role: { type: String,default:"USER" },
     banned: { type: Boolean, default: false },
     banReason: { type: String },
     banExpires: { type: Date },
@@ -31,11 +31,11 @@ userSchema.virtual("accounts", {
   foreignField: "userId",
 });
 
-// userSchema.virtual("course", {
-//   ref: "Course",
-//   localField: "id",
-//   foreignField: "userId",
-// });
+userSchema.virtual("course", {
+  ref: "Course",
+  localField: "id",
+  foreignField: "userId",
+});
 
 userSchema.set("toJSON", { virtuals: true });
 userSchema.set("toObject", { virtuals: true });

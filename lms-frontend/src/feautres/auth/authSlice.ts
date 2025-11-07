@@ -26,7 +26,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    /* ---------------- SEND OTP ---------------- */
     builder
       .addCase(sendOtp.pending, (state) => {
         state.status = "loading";
@@ -40,7 +39,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    /* ---------------- VERIFY OTP ---------------- */
+    
     builder
       .addCase(verifyOtp.pending, (state) => {
         state.status = "loading";
@@ -55,9 +54,6 @@ const authSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       });
-
-    
-
     
     builder
       .addCase(verifySession.pending, (state) => {
@@ -73,7 +69,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    /* ---------------- LOGOUT ---------------- */
+  
     builder
       .addCase(logout.pending, (state) => {
         state.status = "loading";
@@ -88,11 +84,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
     
-    
-    
-    
-    
-    
+  
     builder
       .addCase(githubLogin.pending, (state) => {
         state.status = "loading";

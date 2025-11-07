@@ -1,5 +1,5 @@
 import { useEffect, useTransition } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/authHook";
+import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
 import { verifySession } from "@/feautres/auth/authThunks";
 
 export const useSession = () => {
@@ -17,6 +17,8 @@ export const useSession = () => {
       dispatch(verifySession());
     });
   }, [dispatch, sessionToken]);
+
+  
 
   return { user, status, error, sessionToken, isPending };
 };

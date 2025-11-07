@@ -37,7 +37,7 @@ const Navbar = () => {
             <ThemeToggle />
             {isPending ? null : user ? (
               <>
-              <UserDropdown email={user?.email} image= {user?.image} name={user?.name}/>
+              <UserDropdown email={user?.email} image= {user?.image || ""} name={user?.name}/>
               </>
             ) : (
               <>

@@ -27,8 +27,8 @@ export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async ({ email, otp }: { email: string; otp: string }) => {
     console.log(email, otp);
-   const { data } = await api.post("/auth/verify-otp", { email, otp });
-    localStorage.setItem("sessionToken", data.sessionToken);
+    const { data } = await api.post("/auth/verify-otp", { email, otp });
+    localStorage.setItem("sessionToken", data.data.sessionToken);
     return data;
   }
 );
@@ -37,8 +37,7 @@ export const verifyOtp = createAsyncThunk(
 export const verifySession = createAsyncThunk("auth/verifySession", async () => {
 
   const { data } = await api.get("/auth/session");
-  
-  return data;
+  return data.data;
 });
 
 export const logout = createAsyncThunk("auth/logout", async () => {
@@ -87,8 +86,8 @@ export const githubLogin = createAsyncThunk<
       });
 
       return githubResponse;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "GitHub login failed");
+    } catch {
+      return rejectWithValue("GitHub login failed");
     }
   }
 );
