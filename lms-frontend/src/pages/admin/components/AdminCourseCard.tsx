@@ -26,7 +26,7 @@ import type { AdminCourseType } from "../types/AdminCourseType";
 interface iAppProps {
   data: AdminCourseType;
 }
-export function AdminCourseCard({ data }: iAppProps) {
+export  function AdminCourseCard({ data }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data?.fileKey||"");
 
   return (

@@ -2,10 +2,7 @@ import mongoose from "mongoose";
 
 export const userSchema = new mongoose.Schema(
   {
-    id: {
-      type: String,
-      default: () => new mongoose.Types.ObjectId().toString(),
-    },
+    
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     emailVerified: { type: Boolean, default: false },
@@ -21,13 +18,13 @@ export const userSchema = new mongoose.Schema(
 // Relations
 userSchema.virtual("sessions", {
   ref: "Session",
-  localField: "id",
+  localField: "_id",
   foreignField: "userId",
 });
 
 userSchema.virtual("accounts", {
   ref: "Account",
-  localField: "id",
+  localField: "_id",
   foreignField: "userId",
 });
 

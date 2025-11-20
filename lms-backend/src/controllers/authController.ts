@@ -9,22 +9,17 @@ import { v4 as uuidv4 } from "uuid";
 import type { Request, Response } from "express";
 import dotenv from "dotenv";
 import type { InferSchemaType } from "mongoose";
-import type {
-  ApiRequest,
-  ApiResponse,
-  SendOtpRequest,
-  VerifyOtpRequest,
-  VerifyOtpResponse,
-} from "../types/admin/authTypes.js";
+
 import Account from "../models/account.js";
+import type { ApiResponse } from "../types/admin/authTypes.js";
 dotenv.config();
 type UserDocument = InferSchemaType<typeof User.schema> & { _id: any };
 
 declare global {
   namespace Express {
     interface Request {
-      user?: UserDocument; // or appropriate type
-      session?: any; // define proper session type if available
+      user?: UserDocument; 
+      session?: any; 
     }
   }
 }
@@ -35,15 +30,15 @@ const generateOtp = (): string =>
 // ------------------- SEND OTP -----------------------------------//
 
 export const sendOtp = async (
-  req: ApiRequest<SendOtpRequest>,
-  res: Response<ApiResponse>
+  req: Request,
+  res: Response
 ): Promise<Response<ApiResponse>> => {
   try {
     const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({
-        success: false,
+        status :"error",
         message: "Email required",
       });
     }
@@ -62,13 +57,13 @@ export const sendOtp = async (
     await sendOtpEmail(email, otp);
 
     return res.status(200).json({
-      success: true,
+      status:"success",
       message: "OTP sent successfully",
     });
   } catch (err) {
     console.error("Error sending OTP:", err);
     return res.status(500).json({
-      success: false,
+      status:"error",
       message: "Error sending OTP",
     });
   }
@@ -77,15 +72,15 @@ export const sendOtp = async (
 // ----------------VERIFY OTP ----------------------------//
 
 export const verifyOtp = async (
-  req: ApiRequest<VerifyOtpRequest>,
-  res: Response<ApiResponse<VerifyOtpResponse>>
-): Promise<Response<ApiResponse<VerifyOtpResponse>>> => {
+  req: Request,
+  res: Response
+): Promise<Response<ApiResponse>> => {
   try {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
       return res.status(400).json({
-        success: false,
+        status:"error",
         message: "Email and OTP required",
       });
     }
@@ -93,21 +88,21 @@ export const verifyOtp = async (
     const record = await Verification.findOne({ identifier: email });
     if (!record) {
       return res.status(400).json({
-        success: false,
+        status:"error",
         message: "OTP not found or already used",
       });
     }
 
     if (record.expiresAt < new Date()) {
       return res.status(400).json({
-        success: false,
+        status:"error",
         message: "OTP expired",
       });
     }
 
     if (record.value !== otp) {
       return res.status(400).json({
-        success: false,
+        status:"error",
         message: "Invalid OTP",
       });
     }
@@ -127,7 +122,7 @@ export const verifyOtp = async (
     const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await Session.create({
+    const session = await Session.create({
       userId: user._id,
       token,
       expiresAt,
@@ -138,22 +133,17 @@ export const verifyOtp = async (
     await Verification.deleteMany({ identifier: email });
 
     return res.status(200).json({
-      success: true,
+      status:"success",
       message: "OTP verified successfully",
       data: {
-        user: {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-        },
-        sessionToken: token,
-        expiresAt,
+        user: user.toObject({ virtuals: true }),
+        session: session.toObject()
       },
     });
   } catch (err) {
     console.error("Error verifying OTP:", err);
     return res.status(500).json({
-      success: false,
+      status:"error",
       message: "Error verifying OTP",
     });
   }
@@ -168,22 +158,27 @@ export const logout = async (
     if (!token) {
       return res
         .status(400)
-        .json({ success: false, message: "No token provided" });
+        .json({ status:"error", message: "No token provided" });
     }
 
     const deleted = await Session.deleteOne({ token });
     if (!deleted.deletedCount) {
       return res
         .status(404)
-        .json({ success: false, message: "Session not found" });
+        .json({
+          status: "error",
+          message: "Session not found"
+        });
     }
 
-    return res.json({ success: true, message: "Logged out successfully" });
+    return res.json({ status:"success", message: "Logged out successfully" });
   } catch (err) {
     console.error("Error logging out:", err);
     return res
       .status(500)
-      .json({ success: false, message: "Error logging out" });
+      .json({
+        status:"error", message: "Error logging out"
+      });
   }
 };
 
@@ -193,34 +188,40 @@ export const getSession = async (
 ): Promise<Response<ApiResponse>> => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
+    
     if (!token)
       return res
         .status(400)
-        .json({ success: false, message: "No session token provided" });
+        .json({ status: "error", message: "No session token provided" });
+    
 
-    // ✅ Find session by token
+
     const session = await Session.findOne({ token });
     if (!session)
       return res
         .status(404)
-        .json({ success: false, message: "Session not found" });
+        .json({ status: "error", message: "Session not found" });
+    
 
-    // ✅ Find the user linked to this session
-    const user = await User.findOne({ id: session.userId });
-    if (!user)
+  
+    const user = await User.findOne({ _id: session.userId });
+    
+    if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found for session" });
+        .json({ status: "error", message: "User not found for session" });
+    }
 
     if (session.expiresAt < new Date()) {
       await Session.deleteOne({ _id: session._id });
       return res
         .status(401)
-        .json({ success: false, message: "Session expired" });
+        .json({ status:"error", message: "Session expired" });
     }
+    
 
     return res.status(200).json({
-      success: true,
+      status:"success",
       message: "Session fetched successfully",
       data: {
         user: user,
@@ -231,7 +232,7 @@ export const getSession = async (
     console.error("Error getting session:", err);
     return res
       .status(500)
-      .json({ success: false, message: "Error getting session" });
+      .json({ status:"error", message: "Error getting session" });
   }
 };
 
@@ -289,14 +290,14 @@ export const githubCallback = async (
     }
      let account = await Account.findOne({
       providerId: "github",
-      userId: user.id,
+      userId: user._id
     });
 
     if (!account) {
       account = await Account.create({
         accountId: githubId.toString(),
         providerId: "github",
-        userId: user.id,
+        userId: user._id,
         accessToken,
         scope: "read:user,user:email",
       });
@@ -311,15 +312,18 @@ export const githubCallback = async (
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     await Session.create({
       token: sessionToken,
-      userId: user.id,
+      userId: user._id.toString(),
       expiresAt,
     });
 
+
     const payload = JSON.stringify({
-      success: true,
+      status : "success",
       message: "Login Successfully Redirected to Home",
-      sessionToken,
-      user,
+      data: {
+        user: user,
+        sessionToken : sessionToken
+      }
     });
 
     res.send(`
@@ -332,7 +336,7 @@ export const githubCallback = async (
     console.error("GitHub OAuth Error:", err);
     res.send(`
       <script>
-        window.opener.postMessage({ success:false, message:'GitHub login failed' }, "*");
+        window.opener.postMessage({ status:"error", message:'GitHub login failed' }, "*");
         window.close();
       </script>
     `);

@@ -33,11 +33,6 @@ import { Avatar, AvatarImage } from "../ui/avatar"
 import Logo from "../../assets/vector-education-logo_779267-2083.png"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",

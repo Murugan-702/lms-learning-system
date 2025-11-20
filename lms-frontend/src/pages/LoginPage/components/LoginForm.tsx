@@ -12,7 +12,7 @@ import { GithubIcon, Loader, Loader2, Send } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { githubLogin, sendOtp } from "@/feautres/auth/authThunks";
+import {githubLogin, sendOtp } from "../../../feautres/auth/authThunks";
 import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
 import { toast } from "sonner";
 
@@ -22,46 +22,50 @@ const LoginForm = () => {
   
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { status, error } = useAppSelector((s) => s.auth);
+  
   
     const [gitHubPending, startGithubTransition] = useTransition();
-  
-    const handleGithubLogin = () => {
-      startGithubTransition(async () => {
-        const resultAction = await dispatch(githubLogin());
-  
-        if (githubLogin.fulfilled.match(resultAction)) {
-          toast.success(resultAction.payload.message || "GitHub login successful!");
-          navigate("/");
-        } else {
-          toast.error(
-            (resultAction.payload as string) || error || "GitHub login failed"
-          );
-        }
-      });
-    };
-
-  const signWithEmail = () => {
-    if (!email) {
-      toast.error("Please Enter the email....");
-      return;
-    }
-
-    startEmailTransition(async () => {
+ const handleGithubLogin = () => {
+    startGithubTransition(async () => {
       try {
-        const res = await dispatch(sendOtp(email)).unwrap();
+        const res = await dispatch(githubLogin()).unwrap();
+        console.log(res);
+        
+        toast.success(res.message || "GitHub login successful!");
+        navigate("/"); // success redirect
 
-        if (res.success) {
-          toast.success(res.message);
-          navigate(`/verify-request/${encodeURIComponent(email)}`);
-        } else {
-          toast.error(res.message);
-        }
-      } catch {
-        toast.error("Something went wrong!");
+      } catch (err: any) {
+        toast.error(err || "GitHub login failed!");
       }
     });
   };
+ 
+
+
+ const signWithEmail = () => {
+  if (!email) {
+    toast.error("Please enter the email.");
+    return;
+  }
+
+  startEmailTransition(async () => {
+    try {
+      const res = await dispatch(sendOtp(email)).unwrap();
+    
+
+    
+      if (res.status === 'success') {
+        toast.success(res.message);
+        navigate(`/verify-request/${encodeURIComponent(email)}`);
+      } else {
+        toast.error(res.message || "Failed to send OTP.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Something went wrong!");
+    }
+  });
+};
+
 
   return (
     <Card>
@@ -74,7 +78,7 @@ const LoginForm = () => {
           className="w-full"
           variant="outline"
           onClick={handleGithubLogin}
-          disabled={gitHubPending || status === 'loading'}
+          disabled={gitHubPending }
         >
           {gitHubPending ? (
             <>

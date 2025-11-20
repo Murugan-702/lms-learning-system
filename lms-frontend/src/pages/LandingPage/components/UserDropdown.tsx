@@ -22,14 +22,15 @@ interface iAppProps {
 const UserDropdown = ({ email, name, image }: iAppProps) => {
   const dispatch = useAppDispatch();
     const handleSignOut = async() =>{
-        const res = await dispatch(logout());
-        const message = res.payload.message;
-        const success = res.payload.success;
-        if(success){
-           toast.success(message);
+       const token = localStorage.getItem("sessionToken")
+        const res = await dispatch(logout(token as string));
+      
+      
+        if(res.payload.status === 'success'){
+           toast.success(res.payload.message);
         }
         else{
-          toast.error(message);
+          toast.error(res.payload.message);
         }
     }
   return (

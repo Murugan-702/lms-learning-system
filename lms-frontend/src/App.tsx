@@ -7,8 +7,10 @@ import VerifyRequestPage from "./pages/VerifyRequest/VerifyRequestPage"
 import { Toaster } from "./components/ui/sonner"
 import AdminLayout from "./layout/AdminLayout"
 import AdminIndexPage from "./pages/admin/AdminPage"
-import { CourseCreatePage } from "./pages/admin/courses/CourseCreatePage"
+import { CourseCreatePage } from "./pages/admin/courses/CreateCoursePage"
 import { CoursePage } from "./pages/admin/courses/CoursePage"
+import DeleteCoursePage from "./pages/admin/courses/DeleteCoursePage"
+import EditCoursePage from "./pages/admin/courses/EditCoursePage"
 
 
 
@@ -27,6 +29,8 @@ const App = () => {
         <Route path="/admin" element={<AdminIndexPage/>}/>
         <Route path ="/admin/courses" element={<CoursePage/>}/>
         <Route path="/admin/courses/create" element={<CourseCreatePage/>}/>
+        <Route path="/admin/courses/:courseId/delete" element={<DeleteCoursePage/>}/>
+        <Route path="/admin/courses/:courseId/edit" element={<EditCoursePage/>}/>
       </Route>
      </Routes>
      </>

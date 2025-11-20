@@ -1,10 +1,11 @@
 import type{ Request, Response } from "express";
 import Course from "../models/courses.js";
 import slugifyLib from "slugify";
+import type { ApiResponse } from "../types/admin/authTypes.js";
 const slugify = slugifyLib.default || slugifyLib;
 
 
-export const createCourse = async (req: Request, res: Response) => {
+export const createCourse = async (req: Request, res: Response):Promise<Response<ApiResponse>> => {
   try {
     const user = (req as any).user;
     console.log(user)
@@ -12,15 +13,12 @@ export const createCourse = async (req: Request, res: Response) => {
     const { title,slug, description, fileKey, price, duration, level, category, smallDescription, status } = req.body;
 
     if (!title ||!slug || !description || !fileKey || !price || !duration || !category || !smallDescription||!status) {
-      return res.status(400).json({ success: false, message: "All required fields must be provided" });
+      return res.status(400).json({ status :"error", message: "All required fields must be provided" });
     }
-    console.log(req)
-
-    
 
     const existing = await Course.findOne({ slug });
     if (existing) {
-      return res.status(400).json({ success: false, message: "A course with this title already exists" });
+      return res.status(400).json({ status :"error", message: "A course with this title already exists" });
     }
 
     const newCourse = await Course.create({
@@ -39,14 +37,14 @@ export const createCourse = async (req: Request, res: Response) => {
     console.log(newCourse)
 
 
-    res.status(201).json({
-      success: true,
+    return res.status(201).json({
+      status : "success",
       message: "Course created successfully",
       data: newCourse,
     });
   } catch (err: any) {
     console.error("Create course error:", err);
-    res.status(500).json({ success: false, message: "Failed to create course" });
+    return res.status(500).json({ status:"error", message: "Failed to create course" });
   }
 };
 
@@ -94,45 +92,64 @@ export const getAllCourses = async (_req: Request, res: Response) => {
   }
 };
 
-
 export const getCourseById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const course = await Course.findById(id).populate("user", "name email role");
+    
+
+    const course = await Course.findOne({ _id:id })  // your custom id field
+      .populate({
+        path: "chapters",
+        options: { sort: { position: 1 } }, // sort chapters by position
+        populate: {
+          path: "lessons",
+          options: { sort: { position: 1 } }, // sort lessons by position
+        },
+      })
+      .populate("user"); 
 
     if (!course) {
-      return res.status(404).json({ success: false, message: "Course not found" });
+      return res.status(404).json({
+        status:"error",
+        message: "Course not found",
+      });
     }
 
-    res.status(200).json({
-      success: true,
+    return res.status(200).json({
+      status :"success",
+      message: "Course fetched successfully",
       data: course,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Get course error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch course" });
+    return res.status(500).json({
+      status:"error",
+      message: "Failed to fetch course",
+    });
   }
 };
 
 
-export const deleteCourse = async (req: Request, res: Response) => {
+export const deleteCourse = async (req: Request, res: Response):Promise<Response<ApiResponse>> => {
   try {
     const { id } = req.params;
+    console.log(id);
 
-    const course = await Course.findById(id);
+    const course = await Course.findOne({id : id})
+    console.log(course);
     if (!course) {
-      return res.status(404).json({ success: false, message: "Course not found" });
+      return res.status(404).json({ status:"error", message: "Course not found" });
     }
 
-    await Course.findByIdAndDelete(id);
+    await Course.findOneAndDelete({ id: id });
 
-    res.status(200).json({
-      success: true,
+    return res.status(200).json({
+      status : "success",
       message: "Course deleted successfully",
     });
   } catch (err: any) {
     console.error("Delete course error:", err);
-    res.status(500).json({ success: false, message: "Failed to delete course" });
+    return res.status(500).json({ status:"error", message: "Failed to delete course" });
   }
 };
 

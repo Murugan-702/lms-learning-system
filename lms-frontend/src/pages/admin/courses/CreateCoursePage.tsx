@@ -47,7 +47,7 @@ export const CourseCreatePage = () =>{
               toast.error('An unexpected error occured. Please try again.');
               return;
             }
-        if(result.payload?.success){
+        if(result.payload?.status === 'success'){
            toast.success(result.payload?.message || "Course created successfully")
         
                 navigate("/admin/courses")

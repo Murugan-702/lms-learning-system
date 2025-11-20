@@ -1,109 +1,118 @@
-import { createSlice, } from "@reduxjs/toolkit";
-import type { AuthState } from "./authTypes";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   sendOtp,
   verifyOtp,
-  
-  verifySession,
+  fetchSession,
   logout,
   githubLogin,
 } from "./authThunks";
 
+import type { User, Session } from "@/types/authTypes";
+
+
+interface AuthState {
+  user: User | null;
+  session: Session | null;
+  status: "success" | "error";
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+  
+}
+
 const initialState: AuthState = {
   user: null,
-  sessionToken: localStorage.getItem("sessionToken"),
-  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  session: null,
+  status: "error",
+  token: null,
+  loading: false,
   error: null,
+  
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    resetAuthState: (state) => {
-      state.status = "idle";
+    clearError: (state) => {
       state.error = null;
     },
+    setToken: (state, action: PayloadAction<string | null>) => {
+      state.token = action.payload;
+    },
   },
+
   extraReducers: (builder) => {
+    // SEND OTP
     builder
       .addCase(sendOtp.pending, (state) => {
-        state.status = "loading";
+        state.loading = true;
         state.error = null;
       })
       .addCase(sendOtp.fulfilled, (state) => {
-        state.status = "succeeded";
+        state.loading = false;
+        state.status = "success";
       })
       .addCase(sendOtp.rejected, (state, action) => {
-        state.status = "failed";
+        state.loading = false;
         state.error = action.payload as string;
+        state.status = "error";
       });
 
-    
+    // VERIFY OTP
     builder
       .addCase(verifyOtp.pending, (state) => {
-        state.status = "loading";
+        state.loading = true;
         state.error = null;
       })
       .addCase(verifyOtp.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload.user;
-        state.sessionToken = action.payload.sessionToken;
+        const data = action.payload.data;
+        state.loading = false;
+        state.user = data?.user ?? null;
+        state.session = data?.session ?? null;
+        state.token = data?.token ?? null;
+        state.status = "success";
       })
       .addCase(verifyOtp.rejected, (state, action) => {
-        state.status = "failed";
+        state.loading = false;
         state.error = action.payload as string;
-      });
-    
-    builder
-      .addCase(verifySession.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(verifySession.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload.user;
-      })
-      .addCase(verifySession.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
+        state.status = "error";
       });
 
-  
+    // FETCH SESSION
     builder
-      .addCase(logout.pending, (state) => {
-        state.status = "loading";
+      .addCase(fetchSession.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
-      .addCase(logout.fulfilled, (state) => {
-        state.user = null;
-        state.sessionToken = null;
-        state.status = "succeeded";
+      .addCase(fetchSession.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload?.user ?? null;
+        state.session = action.payload?.session ?? null;
+        state.status = "success";
       })
-      .addCase(logout.rejected, (state, action) => {
-        state.status = "failed";
+      .addCase(fetchSession.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
+        state.status = "error";
       });
-    
-  
-    builder
-      .addCase(githubLogin.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(githubLogin.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload.user;
-        state.sessionToken = action.payload.sessionToken;
-        localStorage.setItem("sessionToken", action.payload.sessionToken);
-      })
-      .addCase(githubLogin.rejected, (state, action) => {
-        state.status = "failed";
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : "GitHub login failed";
-      });
+
+    // LOGOUT
+    builder.addCase(logout.fulfilled, (state) => {
+      state.user = null;
+      state.session = null;
+      state.token = null;
+      state.status = "success";
+    });
+
+    // GITHUB URL
+    builder.addCase(githubLogin.fulfilled, (state, action) => {
+       state.user = action.payload.user;
+    state.token = action.payload?.sessionToken as string;
+    state.status = "success";
+    });
   },
 });
 
-export const { resetAuthState } = authSlice.actions;
+export const { clearError, setToken } = authSlice.actions;
 export default authSlice.reducer;

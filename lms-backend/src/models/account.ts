@@ -2,10 +2,7 @@ import mongoose from "mongoose";
 
 const accountSchema = new mongoose.Schema(
   {
-    id: {
-      type: String,
-      default: () => new mongoose.Types.ObjectId().toString(),
-    },
+    
     accountId: { type: String, required: true },
     providerId: { type: String, required: true },
     userId: { type: String, required: true },
@@ -23,7 +20,7 @@ const accountSchema = new mongoose.Schema(
 accountSchema.virtual("user", {
   ref: "User",
   localField: "userId",
-  foreignField: "id",
+  foreignField: "_id",
   justOne: true,
 });
 

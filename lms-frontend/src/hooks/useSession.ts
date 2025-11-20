@@ -1,24 +1,21 @@
 import { useEffect, useTransition } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
-import { verifySession } from "@/feautres/auth/authThunks";
+import { fetchSession } from "@/feautres/auth/authThunks";
 
 export const useSession = () => {
   const dispatch = useAppDispatch();
-  const { user, status, error, sessionToken } = useAppSelector(
-    (state) => state.auth
-  );
+  const { user, session, error } = useAppSelector((state) => state.auth);
+  const token = localStorage.getItem("sessionToken");
 
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (!sessionToken) return;
+    if (!token) return;
 
     startTransition(() => {
-      dispatch(verifySession());
+      dispatch(fetchSession(token));
     });
-  }, [dispatch, sessionToken]);
+  }, [token, dispatch]);
 
-  
-
-  return { user, status, error, sessionToken, isPending };
+  return { user, session, error, token, isPending };
 };

@@ -13,6 +13,7 @@ const navigationItems = [
 const Navbar = () => {
   
   const {isPending,user} = useSession();
+  console.log(user);
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-[backup-filter]:bg-background/60">

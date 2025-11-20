@@ -33,7 +33,9 @@ export const deleteCourse = createAsyncThunk(
   "courses/deleteCourse",
   async (id: string, { rejectWithValue }) => {
     try {
+      console.log(id);
       const res = await api.delete(`/courses/${id}`);
+      console.log("res from thunk", res);
       return res.data as ApiResponse<null>;
     } catch (err:any) {
       return rejectWithValue(err.response?.data || { message: "Delete failed" });

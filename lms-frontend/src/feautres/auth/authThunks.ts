@@ -1,93 +1,93 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../utils/api";
-import axios from "axios";
-interface User {
-  id: string;
-  name: string;
+import {
+  sendOtpService,
+  verifyOtpService,
+  getSessionService,
+  logoutService,
+  githubLoginService,
+  type GithubLoginResponse,
+} from "@/services/authServices";
+import type { ApiResponse, User, Session } from "@/types/authTypes";
+
+interface VerifyOtpPayload {
   email: string;
-  avatar?: string;
+  otp: string;
 }
 
-interface GithubLoginResponse {
-  success: boolean;
-  message: string;
-  sessionToken: string;
+interface VerifyOtpResponse {
   user: User;
+  session: Session;
+  token: string;
 }
 
+// SEND OTP
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
-  async (email: string) => {
-    const { data } = await api.post("/auth/send-otp", { email });
-    return data;
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const res = await sendOtpService(email);
+
+      return res;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-export const verifyOtp = createAsyncThunk(
+// VERIFY OTP
+export const verifyOtp = createAsyncThunk<
+  ApiResponse<VerifyOtpResponse>,
+  VerifyOtpPayload
+>(
   "auth/verifyOtp",
-  async ({ email, otp }: { email: string; otp: string }) => {
-    console.log(email, otp);
-    const { data } = await api.post("/auth/verify-otp", { email, otp });
-    localStorage.setItem("sessionToken", data.data.sessionToken);
-    return data;
+  async ({ email, otp }, { rejectWithValue }) => {
+    try {
+      const res = await verifyOtpService(email, otp);
+      return res;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
+// FETCH SESSION
+export const fetchSession = createAsyncThunk(
+  "auth/fetchSession",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const res = await getSessionService(token);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 
-export const verifySession = createAsyncThunk("auth/verifySession", async () => {
+// LOGOUT
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const res = await logoutService(token);
+  
+      return res;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 
-  const { data } = await api.get("/auth/session");
-  return data.data;
-});
-
-export const logout = createAsyncThunk("auth/logout", async () => {
-  const token = localStorage.getItem("sessionToken");
-  if (!token) throw new Error("No token");
-  const { data } = await api.post("/auth/logout");
-  localStorage.removeItem("sessionToken");
-  return data;
-});
-
+// GITHUB LOGIN URL
 export const githubLogin = createAsyncThunk<
   GithubLoginResponse,
   void,
   { rejectValue: string }
->(
-  "auth/githubLogin",
-  async (_, { rejectWithValue }) => {
-    try {
-      // Step 1️⃣: Get GitHub auth URL from backend
-      const { data } = await axios.get("http://localhost:7000/api/auth/github");
+>("auth/githubLogin", async (_, { rejectWithValue }) => {
+  const res = await githubLoginService();
 
-      // Step 2️⃣: Open popup
-      const popup = window.open(data.url, "githubLogin", "width=600,height=700");
-      if (!popup) {
-        return rejectWithValue("Popup blocked. Please allow popups.");
-      }
-
-      // Step 3️⃣: Wait for message from backend callback
-      const githubResponse: GithubLoginResponse = await new Promise((resolve, reject) => {
-        const listener = (event: MessageEvent) => {
-          // only accept messages from backend origin
-          if (event.origin !== "http://localhost:7000") return;
-          const { success, message, sessionToken, user } = event.data;
-
-          if (success && sessionToken) {
-            localStorage.setItem("sessionToken", sessionToken);
-            window.removeEventListener("message", listener);
-            resolve({ success, message, sessionToken, user });
-          } else {
-            window.removeEventListener("message", listener);
-            reject(rejectWithValue(message || "GitHub login failed"));
-          }
-        };
-
-        window.addEventListener("message", listener);
-      });
-
-      return githubResponse;
-    } catch {
-      return rejectWithValue("GitHub login failed");
-    }
+  if (res.status === 'error') {
+    return rejectWithValue(res.message);
   }
-);
+
+  return res;
+});

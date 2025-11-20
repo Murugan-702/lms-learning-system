@@ -13,12 +13,19 @@ export const sendOtpEmail = async (to: string, otp: string) => {
       from: "onboarding@resend.dev",
       to,
       subject: "Your OTP Code",
-        html : `<p>Your OTP is <strong>${otp}</strong></p>`
+        html : `<div style="font-family: sans-serif; padding: 20px;">
+          <h2>Account Verification</h2>
+          <p>Please use the following code to complete your verification:</p>
+          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="font-size: 24px; font-weight: bold; text-align: center;">${otp}</p>
+          </div>
+          <p>This code is valid for 10 minutes.</p>
+        </div>`
     });
 
   
   } catch (error) {
     
-    throw new Error("Unable to send OTP email");
+    throw new Error("Unable to send OTP email due to service error");
   }
 };

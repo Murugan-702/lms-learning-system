@@ -30,10 +30,7 @@ export interface ICourse extends Document {
 
 const CourseSchema = new Schema<ICourse>(
   {
-    id: {
-      type: String,
-      default: () => new mongoose.Types.ObjectId().toString(),
-    },
+   
     title: { type: String, required: true },
     description: { type: String, required: true },
     fileKey: { type: String, required: true },
@@ -58,12 +55,16 @@ const CourseSchema = new Schema<ICourse>(
   { timestamps: true }
 );
 
-// Virtual (reverse relation)
 CourseSchema.virtual("user", {
   ref: "User",
   localField: "userId",
-  foreignField: "id",
+  foreignField: "_id",
   justOne: true,
+});
+CourseSchema.virtual("chapters", {
+  ref: "Chapter",
+  localField: "_id",
+  foreignField: "courseId",
 });
 
 CourseSchema.set("toJSON", { virtuals: true });

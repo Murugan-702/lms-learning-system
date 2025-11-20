@@ -21,7 +21,7 @@ import { toast } from "sonner";
 const VerifyRequestPage = () => {
   const [otp, setOtp] = useState("");
  const email = decodeURIComponent(useParams().email as string);
- console.log("email",email)
+ 
   const [emailPending, startEmailTransition] = useTransition();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -34,7 +34,8 @@ const VerifyRequestPage = () => {
     startEmailTransition(async () => {
       try {
         const res = await dispatch(verifyOtp({email:email,otp:otp})).unwrap();
-        if (res.success) {
+        console.log(res,"qrrived at page");
+        if (res.status === "success") {
           toast.success(res.message);
           navigate("/")
         } else {

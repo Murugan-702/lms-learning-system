@@ -2,10 +2,7 @@ import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema(
   {
-    id: {
-      type: String,
-      default: () => new mongoose.Types.ObjectId().toString(),
-    },
+   
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
     token: { type: String, required: true, unique: true },
     ipAddress: { type: String },
@@ -19,7 +16,7 @@ const sessionSchema = new mongoose.Schema(
 sessionSchema.virtual("user", {
   ref: "User",
   localField: "userId",
-  foreignField: "id",
+  foreignField: "_id",
   justOne: true,
 });
 
