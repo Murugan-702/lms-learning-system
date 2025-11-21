@@ -13,14 +13,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Uploader } from "@/components/file-uploader/Uploader";
 import { RichTextEditor } from "@/components/rich-text-editor/Editor";
 import { useTransition } from "react";
-import { useAppDispatch } from "@/hooks/dispatchHook";
-import { createCourse } from "@/feautres/courses/courseThunk";
+import { createCourse } from "@/feautres/courses/courseService";
 import { tryCatch } from "@/hooks/try-catch";
 import { toast } from "sonner";
 
 export const CourseCreatePage = () =>{
     const [pending,startTransition] = useTransition();
-    const dispatch = useAppDispatch();
+  
     const navigate = useNavigate();
 
     const form = useForm<CourseSchemaType>({
@@ -41,19 +40,19 @@ export const CourseCreatePage = () =>{
 
   const onSubmit= (values:CourseSchemaType)=>{
       startTransition(async()=>{
-        const {data:result,error} = await tryCatch(dispatch(createCourse(values)));
-        console.log(result)
+        const {data:result,error} = await tryCatch(createCourse(values));
+        
           if(error){
               toast.error('An unexpected error occured. Please try again.');
               return;
             }
-        if(result.payload?.status === 'success'){
-           toast.success(result.payload?.message || "Course created successfully")
+        if(result.status === 'success'){
+           toast.success(result.message || "Course created successfully")
         
                 navigate("/admin/courses")
         }
         else{
-          toast.error(result?.payload?.message || "Something went wrong")
+          toast.error(result?.message || "Something went wrong")
         }
          
       })

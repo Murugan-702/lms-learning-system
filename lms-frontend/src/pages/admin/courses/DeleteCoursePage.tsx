@@ -1,7 +1,6 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { deleteCourse } from "@/feautres/courses/courseThunk";
-import { useAppDispatch } from "@/hooks/dispatchHook";
+import { deleteCourse } from "@/feautres/courses/courseService";
 import  { tryCatch } from "@/hooks/try-catch";
 import { Loader2, Trash2 } from "lucide-react";
 import { useTransition } from "react";
@@ -12,19 +11,19 @@ const DeleteCoursePage = () =>{
     const {courseId} = useParams();
     const[pending,startTransition] = useTransition();
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
+    
     console.log(courseId)
 
     const onSubmit = () =>{
            startTransition(
               async() =>{
-                 const res = await tryCatch(dispatch(deleteCourse(courseId as string)));
-                 if(res.data?.payload?.status === 'success'){
-                   toast.success(res.data.payload.message);
+                 const res = await tryCatch(deleteCourse(courseId as string));
+                 if(res.data?.status === 'success'){
+                   toast.success(res.data.message);
                    navigate("/admin/courses");
                  }
                  else{
-                  toast.error(res.data?.payload?.message);
+                  toast.error(res.data?.message);
                  }
               }
            )

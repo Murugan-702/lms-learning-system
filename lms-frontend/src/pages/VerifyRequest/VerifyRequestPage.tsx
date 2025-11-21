@@ -11,8 +11,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { verifyOtp } from "@/feautres/auth/authThunks";
-import { useAppDispatch } from "@/hooks/dispatchHook";
+import { verifyOtp } from "@/feautres/auth/authService";
 import { Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -23,7 +22,6 @@ const VerifyRequestPage = () => {
  const email = decodeURIComponent(useParams().email as string);
  
   const [emailPending, startEmailTransition] = useTransition();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const isOtpCompleted = otp.length === 6;
@@ -33,7 +31,8 @@ const VerifyRequestPage = () => {
     }
     startEmailTransition(async () => {
       try {
-        const res = await dispatch(verifyOtp({email:email,otp:otp})).unwrap();
+        const res = await verifyOtp({email:email,otp:otp});
+      
         console.log(res,"qrrived at page");
         if (res.status === "success") {
           toast.success(res.message);

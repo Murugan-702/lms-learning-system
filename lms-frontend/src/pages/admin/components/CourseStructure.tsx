@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import type { AdminCourseSingularType } from "../types/AdminCourseType";
+import type { AdminCourseSingularType } from "../../../types/courseType";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import NewChapterModal from "./NewChapterModal";
 import { DndContext, KeyboardSensor, PointerSensor, rectIntersection, useSensor, useSensors, type DragEndEvent, type DraggableSyntheticListeners } from "@dnd-kit/core";
@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, FileText, GripVertical } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAppDispatch } from "@/hooks/dispatchHook";
-import { reorderChapters } from "@/feautres/chapters/chapterSlice";
+import { reorderChapters } from "@/feautres/chapters/chapterService";
 
 
 interface iAppProps {
@@ -28,7 +27,7 @@ interface SortableItemProps {
   };
 }
 const CourseStructure = ({data}:iAppProps) =>{
-  const dispatch = useAppDispatch();
+  
   console.log(data);
      const intialItems =
     data?.chapters?.map((chapter) => ({
@@ -135,7 +134,7 @@ const CourseStructure = ({data}:iAppProps) =>{
 
            const reorderPromise = () =>
          {
-               return dispatch(reorderChapters(chaptersToUpdate)).unwrap();
+               return reorderChapters(chaptersToUpdate);
          }
         toast.promise(reorderPromise(), {
           loading: "Reordering Chapters...",
@@ -321,7 +320,7 @@ const CourseStructure = ({data}:iAppProps) =>{
                                       </Button>
                                       <FileText className="size-4" />
                                       <Link
-                                        to={`/admin/courses/${data.id}/${item.id}/${lesson.id}`}
+                                        to={`/admin/courses/${data._id}/${item.id}/${lesson.id}`}
                                       >
                                         {lesson.title}
                                       </Link>

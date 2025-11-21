@@ -12,15 +12,14 @@ import { GithubIcon, Loader, Loader2, Send } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {githubLogin, sendOtp } from "../../../feautres/auth/authThunks";
-import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
+import {githubLogin, sendOtp } from "../../../feautres/auth/authService";
+
 import { toast } from "sonner";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [emailPending, startEmailTransition] = useTransition();
   
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
   
@@ -28,14 +27,14 @@ const LoginForm = () => {
  const handleGithubLogin = () => {
     startGithubTransition(async () => {
       try {
-        const res = await dispatch(githubLogin()).unwrap();
+        const res = await githubLogin();
         console.log(res);
         
-        toast.success(res.message || "GitHub login successful!");
-        navigate("/"); // success redirect
+        toast.success(res.message);
+        navigate("/"); 
 
-      } catch (err: any) {
-        toast.error(err || "GitHub login failed!");
+      } catch {
+        toast.error("Something went wrong!");
       }
     });
   };
@@ -50,7 +49,9 @@ const LoginForm = () => {
 
   startEmailTransition(async () => {
     try {
-      const res = await dispatch(sendOtp(email)).unwrap();
+      const res = await sendOtp(email);
+      
+    
     
 
     
@@ -60,8 +61,8 @@ const LoginForm = () => {
       } else {
         toast.error(res.message || "Failed to send OTP.");
       }
-    } catch (err: any) {
-      toast.error(err?.message || "Something went wrong!");
+    } catch  {
+      toast.error( "Something went wrong!");
     }
   });
 };

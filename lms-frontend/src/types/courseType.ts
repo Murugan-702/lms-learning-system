@@ -1,14 +1,23 @@
-export interface AdminCourseType {
+
+
+
+export interface Course {
   id: string;
   title: string;
+  description: string;
   smallDescription: string;
-  duration: string;
-  level: string;
-  status: string;
   price: number;
-  fileKey: string | null;
+  duration: number;
+  level: string;
+  category: string;
   slug: string;
+  status: string;
+  fileKey: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
 export interface AdminCourseSingularType {
   _id: string;
   title: string;
@@ -38,3 +47,23 @@ export interface AdminCourseSingularType {
   }[];
 }
 
+export interface ApiResponse<T> {
+  status: "success"| "error"
+  message: string;
+  data?: T;
+}
+export interface Lesson {
+  _id: string;
+  title: string;
+  content?: string;
+  position: number;
+  chapterId: string;
+}
+
+export interface Chapter {
+  _id: string;
+  title: string;
+  position: number;
+  courseId: string;
+  lessons: Lesson[];
+}

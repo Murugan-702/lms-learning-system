@@ -17,8 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createChapter } from "@/feautres/chapters/chapterSlice";
-import { useAppDispatch } from "@/hooks/dispatchHook";
+import { createChapter } from "@/feautres/chapters/chapterService";
 import { tryCatch } from "@/hooks/try-catch";
 import { chapterSchema, type ChapterSchemaType } from "@/lib/zodSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +31,7 @@ const NewChapterModal = ({ courseId }: { courseId: string }) => {
   const [pending, startTransition] = useTransition();
   
 
-  const dispatch = useAppDispatch();
+  
   
 
   const form = useForm<ChapterSchemaType>({
@@ -48,7 +47,7 @@ const NewChapterModal = ({ courseId }: { courseId: string }) => {
     console.log("form subm,itted")
     startTransition(async () => {
       const { data: result, error } = await tryCatch(
-        dispatch(createChapter(values))
+        createChapter(values)
       );
 
       if (error) {
@@ -56,12 +55,12 @@ const NewChapterModal = ({ courseId }: { courseId: string }) => {
         return;
       }
 
-      if (result?.payload?.status === "success") {
-        toast.success(result.payload.message || "Chapter created");
+      if (result?.status === "success") {
+        toast.success(result.message || "Chapter created");
         form.reset();
         setOpen(false);
       } else {
-        toast.error(result?.payload?.message || "Failed to create chapter");
+        toast.error(result?.message || "Failed to create chapter");
       }
     });
   };

@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
-import { getMyCourses } from "@/feautres/courses/courseThunk";
-import { useAppDispatch, useAppSelector } from "@/hooks/dispatchHook";
+import { getMyCourses } from "@/feautres/courses/courseService";
 import { Link } from "react-router-dom";
 import { AdminCourseCard } from "../components/AdminCourseCard";
+import type { Course } from "@/types/courseType";
 
 export const CoursePage = () => {
-  const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
-  const [courses, setCourses] =useState([]);
+  
+  const [courses, setCourses] =useState<Course[]>([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const res = await dispatch(getMyCourses());
+      const res = await getMyCourses();
       console.log(res);
-      setCourses(res.payload.data || []); // optional
+      setCourses(res.data || []); 
     };
     fetchCourses();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>

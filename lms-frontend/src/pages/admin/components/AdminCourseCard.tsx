@@ -20,11 +20,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { AdminCourseType } from "../types/AdminCourseType";
+import type { Course } from "@/feautres/courses/courseTypes";
 
 
 interface iAppProps {
-  data: AdminCourseType;
+  data: Course
 }
 export  function AdminCourseCard({ data }: iAppProps) {
   const thumbnailUrl = useConstructUrl(data?.fileKey||"");

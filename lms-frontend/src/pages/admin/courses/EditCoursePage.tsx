@@ -1,29 +1,27 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCourseById } from "@/feautres/courses/courseThunk";
-import { useAppDispatch } from "@/hooks/dispatchHook";
+import { getCourseById } from "@/feautres/courses/courseService";
 import CourseStructure from "../components/CourseStructure"
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import type { AdminCourseSingularType } from "@/types/courseType";
+
 
 
 const EditCoursePage = () =>{
     const {courseId} = useParams();
-    const [data,setData] = useState({});
-    const dispatch = useAppDispatch();
+    const [data,setData] = useState<AdminCourseSingularType>();
+    
     const adminGetCourses = async (courseId: string | undefined) =>{
-       const res =  await dispatch(getCourseById(courseId as string));
-       return res.payload?.data;
+       const res =  await getCourseById(courseId as string);
+       return res.data;
     }
     useEffect(()=>{
              adminGetCourses(courseId as string).then((course)=>{
                  setData(course);
              });
     },[courseId]);
-    
-  
 
-   
   return(
     <div>
          <h1 className="text-3xl font-bold mb-8">Edit Course</h1>
@@ -58,7 +56,7 @@ const EditCoursePage = () =>{
                             </CardDescription>
                             </CardHeader>
                             <CardContent>
-                             <CourseStructure data={data}/>
+                             <CourseStructure data={data as AdminCourseSingularType}/>
                             </CardContent>
                           </Card>
                      </TabsContent>
