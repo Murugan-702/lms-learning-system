@@ -8,14 +8,15 @@ export async function getChapters(courseId: string) {
 }
 
 // CREATE CHAPTER
-export async function createChapter(values:{name : string , courseId : string}) {
-  const res = await api.post<ApiResponse>("/chapter/create", {values});
+export async function createChapter(values: { name: string, courseId: string }) {
+  
+    const res = await api.post<ApiResponse>("/chapter/create", values);
   return res.data;
 }
 
 // DELETE CHAPTER
 export async function deleteChapter(chapterId: string) {
-  const res = await api.delete<ApiResponse>(`/api/chapters/${chapterId}`);
+  const res = await api.delete<ApiResponse>(`/chapter/delete/${chapterId}`);
   return res.data;
 }
 

@@ -4,16 +4,18 @@ import Lesson from "../models/lesson.js";
 
 export const createLesson = async (req: Request, res: Response) => {
   try {
-    const { chapterId } = req.params;
-    const { title, description, thumbnailKey, videoUrl, position } = req.body;
+    
+    const { title, chapterId } = req.body;
+
+      const maxLesson = await Lesson.findOne({ chapterId })
+          .sort({ position: -1 }) // highest first
+          .lean();
+        const maxPosition = maxLesson ? maxLesson.position : 0;
 
     const lesson = await Lesson.create({
-      title,
-      description,
-      thumbnailKey,
-      videoUrl,
-      position,
-      chapterId,
+      title : title,
+      chapterId: chapterId,
+      position : maxPosition + 1
     });
 
     return res.status(201).json({
@@ -53,8 +55,14 @@ export const deleteLesson = async (req: Request, res: Response) => {
 
 export const reorderLessons = async (req: Request, res: Response) => {
   try {
-    const updates: Array<{ lessonId: string; position: number }> = req.body;
-
+    const updates: { lessonId: string; position: number }[] = req.body.updates;
+     
+     if (!updates || !updates.length) {
+      return res.status(400).json({
+        status: "error",
+        message: "No updates provided",
+      });
+    }
     const bulkOps = updates.map((item) => ({
       updateOne: {
         filter: { _id: item.lessonId },

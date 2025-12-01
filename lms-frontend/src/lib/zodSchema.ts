@@ -49,8 +49,8 @@ export const chapterSchema = z.object({
 
 export const lessonSchema = z.object({
     name: z.string().min(3, { message: "Name must be atlease 3 characters long" }),
-    courseId: z.string().uuid({ message: "Invalid course Id" }),
-    chapterId: z.string().uuid({ message: "Invalid chapter Id" }),
+    
+    chapterId: z.string({ message: "Invalid chapter Id" }),
     description: z.string().min(3, { message: "Description must be atleast 3 characters long" }).optional(),
     videoUrl: z.string().optional(),
     thumbnailKey: z.string().optional(),
