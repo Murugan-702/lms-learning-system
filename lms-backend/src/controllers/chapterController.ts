@@ -5,12 +5,15 @@ import Lesson from "../models/lesson.js";
 // CREATE chapter
 export const createChapter = async (req: Request, res: Response) => {
   try {
-    const { courseId, name } = req.body;
+    
+    const {name , courseId } = req.body;
+    
 
     const maxChapter = await Chapter.findOne({ courseId })
       .sort({ position: -1 }) // highest first
       .lean();
     const maxPosition = maxChapter ? maxChapter.position : 0;
+    
 
     const chapter = await Chapter.create({
       title: name,

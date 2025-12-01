@@ -9,7 +9,6 @@ import {
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/feautres/auth/authService";
-import { useAppDispatch } from "@/hooks/dispatchHook";
 import { ChevronDownIcon, Home, LogOutIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,17 +19,16 @@ interface iAppProps {
   image: string;
 }
 const UserDropdown = ({ email, name, image }: iAppProps) => {
-  const dispatch = useAppDispatch();
     const handleSignOut = async() =>{
        const token = localStorage.getItem("sessionToken")
-        const res = await dispatch(logout(token as string));
+        const res = await logout(token as string);
       
       
-        if(res.payload.status === 'success'){
-           toast.success(res.payload.message);
+        if(res.status === 'success'){
+           toast.success(res.message);
         }
         else{
-          toast.error(res.payload.message);
+          toast.error(res.message);
         }
     }
   return (

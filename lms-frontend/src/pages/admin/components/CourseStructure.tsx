@@ -12,10 +12,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronRight, FileText, GripVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { reorderChapters } from "@/feautres/chapters/chapterService";
+import NewLessonModal from "./NewLessonModal";
+import { reorderLessons } from "@/feautres/lessons/lessonsService";
+import DeleteChapter from "./DeleteChapter";
+import { DeleteLesson } from "./DeleteLesson";
 
 
 interface iAppProps {
   data: AdminCourseSingularType;
+
+
 }
 interface SortableItemProps {
   id: string;
@@ -28,7 +34,7 @@ interface SortableItemProps {
 }
 const CourseStructure = ({data}:iAppProps) =>{
   
-  console.log(data);
+  
      const intialItems =
     data?.chapters?.map((chapter) => ({
       id: chapter.id,
@@ -60,6 +66,7 @@ const CourseStructure = ({data}:iAppProps) =>{
       return updatedItems;
     });
   },[data]);
+
   function SortableItem({ children, id, className, data }: SortableItemProps) {
     const {
       attributes,
@@ -86,7 +93,7 @@ const CourseStructure = ({data}:iAppProps) =>{
     );
   }
   function handleDragEnd(event: DragEndEvent) {
-    console.log(event);
+
     const { active, over } = event;
     if (!over || active.id === over.id) {
       return;
@@ -208,25 +215,26 @@ const CourseStructure = ({data}:iAppProps) =>{
 
       if (courseId) {
         const lessonToUpdate = updatedLessonForState.map((lesson) => ({
-          id: lesson.id,
-          position: lesson.order,
+          lessonId: lesson.id,
+          position: lesson.order
         }));
 
-        // const reorderLessonsPromise = () =>
-        //   reorderLessons(chapterId, lessonToUpdate, courseId);
-        // toast.promise(reorderLessonsPromise(), {
-        //   loading: "Reordering Lessons...",
-        //   success: (result) => {
-        //     if (result.status === "success") {
-        //       return result.message;
-        //     }
-        //     throw new Error(result.message);
-        //   },
-        //   error: () => {
-        //     setItems(previousItems);
-        //     return "Failed to reorder Lessons";
-        //   },
-        // });
+        const reorderLessonsPromise = () =>{
+          return   reorderLessons(lessonToUpdate);
+        }
+            toast.promise(reorderLessonsPromise(), {
+          loading: "Reordering Lessons...",
+          success: (result) => {
+            if (result.status === "success") {
+              return result.message;
+            }
+            throw new Error(result.message);
+          },
+          error: () => {
+            setItems(previousItems);
+            return "Failed to reorder lessons.";
+          },
+         });
       }
       return;
     }
@@ -240,12 +248,16 @@ const CourseStructure = ({data}:iAppProps) =>{
       )
     );
   }
+ 
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  
     return(
       <>
       <DndContext  collisionDetection={rectIntersection}
@@ -293,7 +305,7 @@ const CourseStructure = ({data}:iAppProps) =>{
                             {item.title}
                           </p>
                         </div>
-                        {/* <DeleteChapter courseId={data.id} chapterId={item.id}/> */}
+                        <DeleteChapter chapterId={item.id}/>
                       </div>
 
                       <CollapsibleContent>
@@ -326,14 +338,14 @@ const CourseStructure = ({data}:iAppProps) =>{
                                       </Link>
                                     </div>
 
-                                  {/* <DeleteLesson courseId={data.id} chapterId={item.id} lessonId={lesson.id}/> */}
+                                   <DeleteLesson lessonId={lesson.id}/>
                                   </div>
                                 )}
                               </SortableItem>
                             ))}
                           </SortableContext>
                           <div className="p-2">
-                          {/* <NewLessonModal chapterId={item.id} courseId={data.id}/> */}
+                           <NewLessonModal chapterId={item.id} /> 
                           </div>
                         </div>
                       </CollapsibleContent>

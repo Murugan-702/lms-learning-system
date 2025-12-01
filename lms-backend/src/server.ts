@@ -10,6 +10,7 @@ import authRouter from "./router/authRouter.js"
 import courseRouter from "./router/courseRouter.js"
 import uploadRouter from "./router/uploadRouter.js"
 import chapterRouter from "./router/chapterRouter.js"
+import lessonRouter from "./router/lessonRouter.js"
 const app = express();
 app.use(express.json());
 
@@ -32,7 +33,8 @@ app.use(cors({
 app.use("/api/auth", authRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/upload", uploadRouter);
-app.use("/api/chapter",chapterRouter)
+app.use("/api/chapter", chapterRouter)
+app.use("/api/lesson",lessonRouter)
 
 
 

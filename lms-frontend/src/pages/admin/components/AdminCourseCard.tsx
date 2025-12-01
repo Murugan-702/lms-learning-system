@@ -20,7 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Course } from "@/feautres/courses/courseTypes";
+import type { Course } from "@/types/courseType";
 
 
 interface iAppProps {

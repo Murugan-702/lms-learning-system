@@ -47,7 +47,7 @@ export interface AdminCourseSingularType {
   }[];
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T=unknown> {
   status: "success"| "error"
   message: string;
   data?: T;
@@ -61,9 +61,10 @@ export interface Lesson {
 }
 
 export interface Chapter {
-  _id: string;
+  id: string;
   title: string;
-  position: number;
+  order: number,
+  isOpen : true ,
   courseId: string;
   lessons: Lesson[];
 }
