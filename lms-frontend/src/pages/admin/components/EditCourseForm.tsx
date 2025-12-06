@@ -1,92 +1,63 @@
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Loader2, PlusIcon, SparkleIcon } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form";
-import { courseCategories, courseLevels, courseSchema, courseStatus, type CourseSchemaType } from "@/lib/zodSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import slugify from "slugify"
-import { SelectContent, SelectItem,Select, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Uploader } from "@/components/file-uploader/Uploader";
 import { RichTextEditor } from "@/components/rich-text-editor/Editor";
-import { useTransition } from "react";
-import { createCourse } from "@/feautres/courses/courseService";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { updateCourse } from "@/feautres/courses/courseService";
 import { tryCatch } from "@/hooks/try-catch";
+import { courseCategories, courseLevels, courseSchema, courseStatus, type CourseSchemaType } from "@/lib/zodSchema";
+import type { AdminCourseSingularType } from "@/types/courseType";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, PlusIcon, SparkleIcon } from "lucide-react";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import slugify from "slugify";
 import { toast } from "sonner";
-import { useConstructUrl } from "@/hooks/use-construct-url";
 
-export const CourseCreatePage = () =>{
+interface iAppProps {
+  data: AdminCourseSingularType;
+}
+
+export const EditCourseForm = ({ data }: iAppProps) => {
     const [pending,startTransition] = useTransition();
-  
-    const navigate = useNavigate();
-
-    const form = useForm<CourseSchemaType>({
+  const form = useForm<CourseSchemaType>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      fileKey: "",
-      price: 0,
-      duration: 0,
-      level: "Beginner",
-      category: "It & Software",
-      status: "Draft",
-      slug: "",
-      smallDescription: "",
+      title: data.title,
+      description: data.description,
+      fileKey: data.fileKey,
+      price: data.price,
+      duration: data.duration,
+      level: data.level as CourseSchemaType["level"],
+      category: data.category as CourseSchemaType["category"],
+      status: data.status as CourseSchemaType["status"],
+      slug: data.slug,
+      smallDescription: data.smallDescription,
     },
   });
-  console.log(form.watch());
-
-  const onSubmit= (values:CourseSchemaType)=>{
-    
-      startTransition(async()=>{
-        const {data:result,error} = await tryCatch(createCourse(values));
-        
-          if(error){
-              toast.error('An unexpected error occured. Please try again.');
-              return;
-            }
-        if(result.status === 'success'){
-           toast.success(result.message || "Course created successfully")
-        
-                navigate("/admin/courses")
-        }
-        else{
-          toast.error(result?.message || "Something went wrong")
-        }
-         
-      })
+  const onSubmit = (values:CourseSchemaType) =>{
+        startTransition(
+          async()=>{
+              const {data:result,error} = await tryCatch(updateCourse(data._id,values));
+              if(error){
+                 toast.error("Something went wrong")
+              }
+              if(result?.status === 'success'){
+                 toast.success(result?.message)
+              }
+              else{
+                 toast.error(result?.message);
+              }
+          }
+        )
   }
-    return(
-        <>
-         <div className="flex items-center gap-4">
-        <Link
-          className={buttonVariants({
-            variant: "outline",
-            size: "icon",
-          })}
-          to="/admin/courses"
-        >
-          <ArrowLeft className="size-4" />
-        </Link>
-        <h1 className="text-2xl font-bold">Create Courses</h1>
-      </div>
 
-
-        <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>
-            Provide basic information about the course
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-              <FormField
+   return(
+     <Form {...form}>
+        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
@@ -149,7 +120,7 @@ export const CourseCreatePage = () =>{
                   <FormItem className="w-full">
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                       <RichTextEditor field={field}/> 
+                      <RichTextEditor field={field}/>
                     
                     </FormControl>
                     <FormMessage />
@@ -163,7 +134,7 @@ export const CourseCreatePage = () =>{
                   <FormItem className="w-full">
                     <FormLabel>Thumbnail image</FormLabel>
                     <FormControl>
-                     <Uploader onChange={field.onChange} value={field.value} fileTypeAccepted="image"/> 
+                      <Uploader onChange={field.onChange} value={field.value}  fileTypeAccepted="image"/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -290,18 +261,15 @@ export const CourseCreatePage = () =>{
                   {
                      pending ? 
                      <>
-                          Creating...
+                          Updating...
                           <Loader2 className="animate-spin"/>
                      </>
                      :<>
-                      Create Course <PlusIcon className="ml-1" size={16}/>
+                     Update Course <PlusIcon className="ml-1" size={16}/>
                      </>
                   }
                 </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-        </>
-    )
-}
+        </form>
+     </Form>
+   )
+};

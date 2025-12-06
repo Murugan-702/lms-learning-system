@@ -68,3 +68,15 @@ export interface Chapter {
   courseId: string;
   lessons: Lesson[];
 }
+
+export type PublicCourseType = {
+    level: string;
+    id: string;
+    title: string;
+    fileKey: string;
+    price: number;
+    duration: number;
+    category: string;
+    smallDescription: string;
+    slug: string;
+}

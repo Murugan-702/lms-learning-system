@@ -13,7 +13,7 @@ import { verifyAdmin } from "../middleware/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get("/my/courses", verifySession, getMyCourses);
+router.get("/my/courses", verifySession,verifyAdmin, getMyCourses);
 
 
 // Public Routes

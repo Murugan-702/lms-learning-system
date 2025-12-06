@@ -1,12 +1,14 @@
 import Navbar from "@/pages/LandingPage/components/Navbar";
-import type React from "react";
+import { Outlet } from "react-router-dom";
 
 
-const LandingLayout = ({children}:{children:React.ReactNode}) =>{
+const LandingLayout = () =>{
      return(
         <div>
             <Navbar/>
-            <main className="container mx-auto px-4">{children}</main>
+            <main className="container mx-auto px-4">
+                <Outlet/>
+            </main>
         </div>
      )
 }

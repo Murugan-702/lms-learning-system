@@ -5,6 +5,7 @@ import CourseStructure from "../components/CourseStructure"
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { AdminCourseSingularType } from "@/types/courseType";
+import { EditCourseForm } from "../components/EditCourseForm";
 
 
 
@@ -21,6 +22,10 @@ const EditCoursePage = () =>{
                  setData(course);
              });
     },[courseId]);
+    console.log(data);
+      if (!data) {
+        return <p className="text-center py-10">Loading course…</p>;
+    }
 
   return(
     <div>
@@ -42,7 +47,7 @@ const EditCoursePage = () =>{
                             <CardDescription>Provide the basic information about the course</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {/* <EditCourseForm data={data}/> */}
+                                <EditCourseForm data={data as AdminCourseSingularType}/>
                             </CardContent>
                           </Card>
                      </TabsContent>

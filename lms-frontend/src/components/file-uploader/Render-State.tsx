@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { CloudUploadIcon, ImageIcon, Loader2, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
-
 export function RenderEmptyState({ isDragActive }: { isDragActive: boolean }) {
   return (
     <div className="text-center">
@@ -46,27 +45,37 @@ export function RenderUploadedState({
   previewUrl,
   isDeleting,
   handleRemoveFile,
+  fileType,
 }: {
   previewUrl: string;
-  isDeleting : boolean;
-  handleRemoveFile  : () => void;
+  isDeleting: boolean;
+  handleRemoveFile: () => void;
+  fileType: "image" | "video";
 }) {
   return (
     <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-      <img
-        src={previewUrl}
-        alt="Upload File"
-        
-        className="object-contain p-2 max-w-full max-h-full "
-      />
+      {fileType === "video" ? (
+        <video  src={previewUrl} className="w-full h-full rounded-md" controls />
+      ) : (
+        <img
+          src={previewUrl}
+          alt="Upload File"
+          className="object-contain p-2 max-w-full max-h-full "
+        />
+      )}
+
       <Button
         variant="destructive"
         size="icon"
         className={cn("absolute top-4 right-4")}
         onClick={handleRemoveFile}
-        disabled = {isDeleting}
+        disabled={isDeleting}
       >
-        {isDeleting ? <Loader2 className="size-4 animate-spin"/> :<XIcon className="size-4"/>}
+        {isDeleting ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <XIcon className="size-4" />
+        )}
       </Button>
     </div>
   );

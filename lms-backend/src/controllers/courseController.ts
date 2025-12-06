@@ -78,17 +78,17 @@ export const editCourse = async (req: Request, res: Response) => {
 };
 
 
-export const getAllCourses = async (_req: Request, res: Response) => {
+export const getAllCourses = async (_req: Request, res: Response):Promise<Response<ApiResponse>> => {
   try {
-    const courses = await Course.find().populate("user", "name email role");
-    res.status(200).json({
-      success: true,
-      count: courses.length,
+    const courses = await Course.find();
+    return res.status(200).json({
+      status: "success",
+      message:"Courses fetched successfully",
       data: courses,
     });
   } catch (err: any) {
     console.error("Get all courses error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch courses" });
+    return res.status(500).json({ status:"error", message: "Failed to fetch courses" });
   }
 };
 
@@ -135,13 +135,13 @@ export const deleteCourse = async (req: Request, res: Response):Promise<Response
     const { id } = req.params;
     console.log(id);
 
-    const course = await Course.findOne({id : id})
+    const course = await Course.findOne({_id : id})
     console.log(course);
     if (!course) {
       return res.status(404).json({ status:"error", message: "Course not found" });
     }
 
-    await Course.findOneAndDelete({ id: id });
+    await Course.findOneAndDelete({ _id: id });
 
     return res.status(200).json({
       status : "success",
@@ -170,7 +170,7 @@ export const getMyCourses = async (req: any, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message : "Courses Fetcjed successfully",
+      message : "Courses Fetched successfully",
       data: courses,
     });
   } catch (err: any) {
